@@ -6,26 +6,26 @@
 #define TS_MAXY 940
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
-extern uint8_t SevenSegNumFont[];
 char stCurrent[20]="";
 char stLast[20]="";
 UTFT myGLCD(ITDB32S,38,39,40,41);
 float vout = 0.0;
 float vin = 0.0;
 float R1 = 100000.0;
-float R2 = 99000.0;
+float R2 = 10000.0;
 int value = 0;
 int page = 0;
 int stCurrentLen=0;
 int x, y;
 int sensorValue = 0;
+
 UTouch  myTouch( 6, 5, 4, 3, 2);
 void setup() {
  myGLCD.InitLCD(0);
  myGLCD.clrScr();
  myGLCD.setFont(SmallFont);
  myTouch.InitTouch();
- myTouch.setPrecision(PREC_MEDIUM);
+ myTouch.setPrecision(PREC_HI);
  Serial.begin(9600);
  Serial.println("Starting...");
  homescr();
@@ -48,7 +48,7 @@ void redraw(){
  if (page == 0) {
  homescr();
  }
- if (page == 1) {
+ if (page = 1) {
  menu1();
  }
  if (page == 2) {
@@ -75,7 +75,7 @@ void menu1() {
  myGLCD.print("HOME", 160, 265);
 }
 void info() {
- myGLCD.print("info", CENTER, 2);  
+ myGLCD.print("INFO", CENTER, 2);  
  myGLCD.drawRect(0, 20, 150, 50);
  myGLCD.drawRect(170, 20, 150, 50);
  myGLCD.drawRect(0, 80, 150, 50);
@@ -86,16 +86,24 @@ void info() {
  myGLCD.drawRect(10,250,100,290);
  myGLCD.fillRect(10,250,100,290);
  myGLCD.setColor(255,255,255);
- myGLCD.print("button 1", 25, 265);
+ myGLCD.print("HOME", 35, 265);
  myGLCD.setColor(0,0,255);
  myGLCD.drawRect(130,250,220,290);
  myGLCD.fillRect(130,250,220,290);
  myGLCD.setColor(255,255,255);
- myGLCD.print("HOME", 160, 265);
+ myGLCD.print("button 1", 150, 265);
 }  
-void readvoltage(){
-  String sensorVal1 = String(analogRead(A1));
-//Serial.print(sensorVal1);
+void readvoltage(void){
+  int val1 = 0;
+  val1 = analogRead(A1);
+  vout = (val1 * 5.0) / 1024.0;
+  vin = vout / (R2/(R1+R2));  
+  if (vin<0.09) {
+      vin=0.0;
+  }
+
+  //String sensorVal1 = String(vin);
+  //Serial.print(sensorVal1);
   String sensorVal2 = String(analogRead(A2));
   String sensorVal3 = String(analogRead(A3));
   String sensorVal4 = String(analogRead(A4));
@@ -105,8 +113,8 @@ void readvoltage(){
   myGLCD.setFont(SmallFont);
   myGLCD.print("DC VOLTMETER", CENTER, 2);
   myGLCD.print("Voltage #1",10,90, 0);
-  myGLCD.print(sensorVal1,200,90, 0);
-  myGLCD.print("Voltage #2",10,110, 0);
+  myGLCD.print(floatToString(vin),200,90, 0);
+ /* myGLCD.print("Voltage #2",10,110, 0);
   myGLCD.print(sensorVal2,200,110, 0);
   myGLCD.print("Voltage #3",10,130, 0);
   myGLCD.print(sensorVal3,200,130, 0);
@@ -115,18 +123,17 @@ void readvoltage(){
   myGLCD.print("Voltage #5",10,170, 0);
   myGLCD.print(sensorVal5,200,170, 0);
   myGLCD.print("Voltage #6",10,190, 0);
-  myGLCD.print(sensorVal6,200,190, 0);
-  vout = (value * 5.0) / 1024.0;
-  vin = vout / (R2/(R1+R2));  
-  if (vin<0.09) {
-  vin=0.0;
+  myGLCD.print(sensorVal6,200,190, 0);*/
+
   }
-} 
+ 
+
+
 void loop() {
  Serial.println(page);
  touchread();
  if (page == 0);{
- readvoltage();
+ homescr();
  }
  if (page == 1); {
    
@@ -146,30 +153,33 @@ void touchread() {
     if (page == 0) { 
     myGLCD.clrScr();
     menu1();
-    }    
+    page = 1;
+    }
     if (page == 1) {
-    myGLCD.clrScr();
+    //myGLCD.clrScr();
     //menu1();
     }    
     if (page == 2) { 
     myGLCD.clrScr();
-    //menu1();
+    homescr();
+    page = 0;
     }
    }
     if (y > 153 && y < 224 && x > 22 && x < 61) {
     if (page == 0) { 
     myGLCD.clrScr();
-    info();  
+    info();
+    page = 2;  
     }
     if (page == 1) {
     myGLCD.clrScr();
+    homescr();
     page = 0; 
-    redraw();
     }       
     if (page == 2) {
-    myGLCD.clrScr();
-    page = 0;
-    redraw(); 
+    //myGLCD.clrScr();
+   // homescr();
+    //page = 0; 
     }
    }
    delay(1000);
