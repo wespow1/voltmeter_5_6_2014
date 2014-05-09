@@ -1,5 +1,7 @@
 #include <UTFT.h>
 #include <UTouch.h>
+#include <stdlib.h>
+
 #define TS_MINX 150
 #define TS_MINY 120
 #define TS_MAXX 920
@@ -107,6 +109,10 @@ void readvoltage(void){
       vin=0.0;
   }
 
+  char buffer[10];
+  dtostrf (vin, 5 , 2, buffer);
+  String strout = buffer;
+  
   //String sensorVal1 = String(vin);
   //Serial.print(sensorVal1);
   String sensorVal2 = String(analogRead(A2));
@@ -118,7 +124,7 @@ void readvoltage(void){
   myGLCD.setFont(SmallFont);
   myGLCD.print("DC VOLTMETER", CENTER, 2);
   myGLCD.print("Voltage #1",10,90, 0);
-  myGLCD.print(floatToString(vin),200,90, 0);
+  myGLCD.print(strout,200,90, 0);
  /* myGLCD.print("Voltage #2",10,110, 0);
   myGLCD.print(sensorVal2,200,110, 0);
   myGLCD.print("Voltage #3",10,130, 0);
