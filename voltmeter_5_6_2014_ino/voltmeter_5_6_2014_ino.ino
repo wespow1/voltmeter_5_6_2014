@@ -20,6 +20,7 @@ int page = 0;
 int stCurrentLen=0;
 int x, y;
 int sensorValue = 0;
+int delay_per_reading = 10;
 
 UTouch  myTouch( 6, 5, 4, 3, 2);
 void setup() {
@@ -101,25 +102,21 @@ void info() {
 }  
 
 void readvoltage(void){
-  int val1 = 0;
-  val1 = analogRead(A1);
-  vout = (val1 * 5.0) / 1024.0;
-  vin = vout / (R2/(R1+R2));  
-  if (vin<0.09) {
-      vin=0.0;
-  }
+
+  int sensorReading1 = read_sensor(0, 10);
+  vin = convert_to_voltage(sensorReading1);
 
   char buffer[10];
-  dtostrf (vin, 5 , 2, buffer);
+  dtostrf (vin, 5 , 3, buffer);
   String strout = buffer;
   
   //String sensorVal1 = String(vin);
   //Serial.print(sensorVal1);
-  String sensorVal2 = String(analogRead(A2));
-  String sensorVal3 = String(analogRead(A3));
-  String sensorVal4 = String(analogRead(A4));
-  String sensorVal5 = String(analogRead(A5));
-  String sensorVal6 = String(analogRead(A6));
+  //String sensorVal2 = String(analogRead(A2));
+  //String sensorVal3 = String(analogRead(A3));
+  //String sensorVal4 = String(analogRead(A4));
+  //String sensorVal5 = String(analogRead(A5));
+  //String sensorVal6 = String(analogRead(A6));
   myGLCD.setColor(0, 255, 0);
   myGLCD.setFont(SmallFont);
   myGLCD.print("DC VOLTMETER", CENTER, 2);
@@ -195,4 +192,33 @@ void touchread() {
    }
    delay(1000);
  }
+}
+
+float convert_to_voltage(int raw_sensor_data){
+  float to_return;
+  vout = (raw_sensor_data * 5.0) / 1024.0;
+  to_return = vout / ( R2 / (R1+R2) );  
+  //if (to_return <0.09) {
+   //   to_return =0.0;
+  //}
+  return to_return;
+}
+
+float read_sensor(int pinToRead, int num_of_readings){
+  int sum_of_readings = 0;
+  float avg_reading = 0.0;
+  int raw_value = 0;
+  for (int i= 0; i < num_of_readings; i++) {  
+    raw_value = analogRead(pinToRead);
+    //Serial.print("Raw:");
+    //Serial.println(raw_value);
+    sum_of_readings = sum_of_readings + raw_value;
+    //Serial.print("sum_of_readings: ");
+    //Serial.println(sum_of_readings);
+    delay(delay_per_reading);
+  }
+  avg_reading = (sum_of_readings  /  num_of_readings);
+  //Serial.print("avg:");
+  //Serial.println(avg_reading, 3);
+  return (avg_reading);
 }
